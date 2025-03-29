@@ -1,4 +1,3 @@
-
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -12,7 +11,10 @@ import { expressMiddleware } from '@apollo/server/express4';
 import { typeDefs, resolvers } from './schemas/index.js';
 import { authMiddleware } from './services/auth.js';
 
-
+// Fix for __dirname in ES modules (needed for Render)
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -30,9 +32,12 @@ async function main() {
   app.use(cors());
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
-  app.use('/graphql', expressMiddleware(server, {
-    context: authMiddleware,
-  }));
+  app.use(
+    '/graphql',
+    expressMiddleware(server, {
+      context: authMiddleware,
+    })
+  );
 
   if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '../../client/build')));
@@ -44,7 +49,7 @@ async function main() {
   if (db.readyState === 1) {
     // Already connected
     app.listen(PORT, () => {
-      console.log(`🌍 Now listening on http://localhost:${PORT}/graphql`);
+      console.log(`Now listening on http://localhost:${PORT}/graphql`);
     });
   } else {
     // Wait for connection
@@ -55,6 +60,7 @@ async function main() {
     });
   }
 }
+
 main().catch((err) => {
   console.error('Server failed to start:', err);
 });
