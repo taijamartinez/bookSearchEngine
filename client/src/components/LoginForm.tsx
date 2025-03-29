@@ -29,10 +29,11 @@ const LoginForm = ({ handleModalClose }: { handleModalClose: () => void }) => {
 
     try {
       const { data } = await login({ variables: userFormData });
+      console.log('Login response:', data);
       Auth.login(data.login.token);
       handleModalClose();
     } catch (err) {
-      console.error(err);
+      console.error('Login error:',err);
       setShowAlert(true);
     }
 
@@ -77,4 +78,5 @@ const LoginForm = ({ handleModalClose }: { handleModalClose: () => void }) => {
 };
 
 export default LoginForm;
+
 
